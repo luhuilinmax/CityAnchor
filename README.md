@@ -19,6 +19,7 @@ To facilitate related research, we plan to make CityAnchor open source, includin
 - [ ] Provide the weights of pre-trained CityAnchor model (13B).
 - [x] Release the codes inlcuding training and evaluation scripts.
 - [x] Release the training data and evaluation data.
+- [ ] Create easy-to-follow dataloader script for grounding on your own city-scale dataset (coming soon)
 - [ ] Achieve more interesting work.
 
 ## 💾 Dataset Download and Processing
