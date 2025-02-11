@@ -37,7 +37,7 @@ def parse_args(args):
     )
     # parser.add_argument("--vision_pretrained", default="PATH_TO_SAM_ViT-H", type=str) 
     parser.add_argument(
-      "--vision_pretrained", default="/content/drive/MyDrive/LISA-main/sam_vit_h_4b8939.pth", type=str
+      "--vision_pretrained", default="./sam_vit_h_4b8939.pth", type=str
       )
 
     # Initialize the parameters of CityAnchor
