@@ -91,6 +91,7 @@ The code has been tested on:
   pip install -r requirements.txt
   pip install deepspeed==0.15.1
   pip install --upgrade gradio
+  pip install --upgrade "jax[cuda12]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
   ```
 
 ## 🔦 Demo
