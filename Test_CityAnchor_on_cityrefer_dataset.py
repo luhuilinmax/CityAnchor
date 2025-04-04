@@ -464,7 +464,7 @@ def main(args):
         try:
             landmark_feat_instance = landmark_feat[str(int(object_id))]
         except KeyError:
-            landmark_feat_instance  = np.zeros((1, 128)) # Unable to equip pre-trained pc_feats for object
+            landmark_feat_instance  = np.zeros((1, 128)) # Unable to equip pre-trained landmark_feats for object
         
         landmark_feats.append(landmark_feat_instance)
         landmark_feats = np.vstack(landmark_feats)
@@ -687,7 +687,7 @@ def main(args):
             try:
                 landmark_feat_instance = landmark_feat[str(int(object_id))]
             except KeyError:
-                landmark_feat_instance  = np.zeros((1, 128)) # Unable to equip pre-trained pc_feats for object
+                landmark_feat_instance  = np.zeros((1, 128)) # Unable to equip pre-trained landmark_feats for object
         
             landmark_feats.append(landmark_feat_instance) # len:1 
             landmark_feats = np.vstack(landmark_feats) # [1,1024]
