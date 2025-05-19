@@ -22,6 +22,12 @@ import gradio as gr
 import plotly.graph_objects as go
 import json
 import rasterio
+from PIL import Image
+import random
+import copy
+import re
+import time
+from collections import defaultdict
 
 from model.LISA_ROI import LISAForCausalLM as LISAForCausalLM_ROI
 from model.llava_ROI import conversation as conversation_lib
@@ -278,6 +284,8 @@ def main(args):
     scanrefer = {"train": scanrefer_train, "val": scanrefer_val}
     scanrefer = scanrefer["val"]
     file_path = "./cityanchor_test_record.txt" # Changing this to record grounding results
+    iou_file_root = "./IoU_File/"
+    
     print("The total val sample is: ",len(scanrefer))
 
     threshold_ROI = 0.1
@@ -847,7 +855,11 @@ def main(args):
         with open(file_path, "a", encoding='utf-8') as file:
             file.write( str(scene_id) + ", object_id:" + str(object_id_ori) + ", ann_id:" + str(ann_id) + ", rank:" + str(rank) + ", pos:" + str(lang_ans_object) + "\n" )
 
-    print("Completed")
+    print("Grounding Completed")
+
+    status = acc_cal_with_iou(file_path, iou_file_root)
+
+    print("Test Completed")
 
 
 def get_scanrefer(scanrefer_train, scanrefer_val, num_scenes, train_scenes_to_use=None, val_scenes_to_use=None):
@@ -928,7 +940,88 @@ def find_nearest_instances(arr, objectID,K):
     nearest_indices = np.argsort(distances)[:K]
     return arr[nearest_indices, -1]
 
+def acc_cal_with_iou(test_file, iou_file_root):
+    with open(test_file, 'r') as file:
+        lines = file.readlines()
 
+    total_count = 0
+    rank_1_count = 0
+    rank_le_2_count = 0
+    rank_le_3_count = 0
+    rank_le_5_count = 0
+    rank_le_10_count = 0
+    rank_1_acc25_count = 0
+    rank_1_acc50_count = 0
+    rank_2_acc25_count = 0
+    rank_2_acc50_count = 0
+    rank_3_acc25_count = 0
+    rank_3_acc50_count = 0
+    rank_5_acc50_count = 0
+    rank_10_acc50_count = 0
+
+    pattern = re.compile(r'(\d+_\w+_\w+), object_id:(\d+), ann_id:(\d+), rank:(\d+),')
+
+    for line in lines:
+        match = pattern.search(line)
+        if match:
+            scene_id, object_id, ann_id, rank = match.groups()
+            iou_file = iou_file_root + scene_id + "_iou.json"
+            with open(iou_file, 'r') as json_file:
+                iou_scene = json.load(json_file)
+            iou_object = iou_scene[str(object_id)]
+
+            total_count += 1
+            rank = int(rank)
+            if rank == 1:
+                rank_1_count += 1
+                if iou_object >= 0.25:
+                    rank_1_acc25_count += 1
+                if iou_object >= 0.50:
+                    rank_1_acc50_count += 1  
+            if rank <= 2:
+                rank_le_2_count += 1
+                if iou_object >= 0.25:
+                    rank_2_acc25_count += 1
+                if iou_object >= 0.50:
+                    rank_2_acc50_count += 1 
+            if rank <= 3:
+                rank_le_3_count += 1
+                if iou_object >= 0.25:
+                    rank_3_acc25_count += 1
+                if iou_object >= 0.50:
+                    rank_3_acc50_count += 1 
+            if rank <= 5:
+                rank_le_5_count += 1
+                if iou_object >= 0.50:
+                    rank_5_acc50_count += 1 
+            if rank <= 10:
+                rank_le_10_count += 1
+                if iou_object >= 0.50:
+                    rank_10_acc50_count += 1 
+
+    total_count = len(lines)
+    rank_1_ratio = rank_1_count / total_count if total_count > 0 else 0
+    rank_le_2_ratio = rank_le_2_count / total_count if total_count > 0 else 0
+    rank_le_3_ratio = rank_le_3_count / total_count if total_count > 0 else 0
+    rank_le_5_ratio = rank_le_5_count / total_count if total_count > 0 else 0
+    rank_le_10_ratio = rank_le_10_count / total_count if total_count > 0 else 0
+    rank_1_acc25_ratio = rank_1_acc25_count / total_count if total_count > 0 else 0
+    rank_1_acc50_ratio = rank_1_acc50_count / total_count if total_count > 0 else 0
+    rank_2_acc25_ratio = rank_2_acc25_count / total_count if total_count > 0 else 0
+    rank_2_acc50_ratio = rank_2_acc50_count / total_count if total_count > 0 else 0
+    rank_3_acc25_ratio = rank_3_acc25_count / total_count if total_count > 0 else 0
+    rank_3_acc50_ratio = rank_3_acc50_count / total_count if total_count > 0 else 0
+    rank_5_acc50_ratio = rank_5_acc50_count / total_count if total_count > 0 else 0
+    rank_10_acc50_ratio = rank_10_acc50_count / total_count if total_count > 0 else 0
+
+    print(f"Sample of Acc@0.25(Rank 1): {rank_1_acc25_count}, Ratio of Acc@0.25(Rank 1): {rank_1_acc25_ratio:.2%}")
+    print(f"Sample of Acc@0.50(Rank 1): {rank_1_acc50_count}, Ratio of Acc@0.50(Rank 1): {rank_1_acc50_ratio:.2%}")
+    print(f"Sample of Acc@0.50(Rank 2): {rank_2_acc50_count}, Ratio of Acc@0.50(Rank 2): {rank_2_acc50_ratio:.2%}")
+    print(f"Sample of Acc@0.50(Rank 3): {rank_3_acc50_count}, Ratio of Acc@0.50(Rank 3): {rank_3_acc50_ratio:.2%}")
+    print(f"Sample of Acc@0.50(Rank 5): {rank_3_acc50_count}, Ratio of Acc@0.50(Rank 5): {rank_5_acc50_ratio:.2%}")
+    print(f"Sample of Acc@0.50(Rank 10): {rank_3_acc50_count}, Ratio of Acc@0.50(Rank 10): {rank_10_acc50_ratio:.2%}")
+
+    return 1
 
 if __name__ == "__main__":
     main(sys.argv[1:])
