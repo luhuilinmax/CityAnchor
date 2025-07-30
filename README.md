@@ -26,7 +26,7 @@ To facilitate related research, we plan to make CityAnchor open source, includin
 
 ## 💾 Dataset Download and Processing
 ### Skip the data preparation
-We have provided all the prepared data in [Google Drive](https://drive.google.com/drive/folders/1_cOZFti4FyZtfAyEotXu1PEOFQZEcwBs?usp=drive_link). Please download the files and place them in the ``.\data`` directory, then change the corresponding path in ``.\lib\config.py``. You’ll then be ready to use demo, train and test the model. Training data and evaluation data are available at [meta data](https://drive.google.com/drive/folders/1J4oRYT3tpdXQAt9mY3J3iu5GCDB03zPj?usp=drive_link).
+We have provided all the prepared data in [Google Drive](https://drive.google.com/drive/folders/1_cOZFti4FyZtfAyEotXu1PEOFQZEcwBs?usp=drive_link). Please download the files and place them in the ``.\data`` directory, then change the corresponding path in ``.\lib\config.py``. You’ll then be ready to use demo, train and test the model. Training data and evaluation data are available at [meta data](https://drive.google.com/drive/folders/1_cOZFti4FyZtfAyEotXu1PEOFQZEcwBs?usp=drive_link).
 ### Prepare data
 1\) Please download the [CityRefer dataset](https://github.com/ATR-DBI/CityRefer) and organise its data structure as shown below.
 ```shell
