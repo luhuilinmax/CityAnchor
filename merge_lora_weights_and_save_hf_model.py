@@ -14,7 +14,6 @@ from transformers import AutoTokenizer
 from model.CityAnchor import LISAForCausalLM
 from utils.utils import DEFAULT_IM_END_TOKEN, DEFAULT_IM_START_TOKEN
 
-
 def parse_args(args):
     parser = argparse.ArgumentParser(
         description="merge lora weights and save model with hf format"
